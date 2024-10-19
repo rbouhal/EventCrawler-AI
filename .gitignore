@@ -2,6 +2,7 @@
 
 # dependencies
 /ecreact/node_modules
+.env
 /.pnp
 .pnp.js
 

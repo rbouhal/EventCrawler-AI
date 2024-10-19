@@ -1,1 +1,5 @@
 flask-cors
+
+npm install dotenv
+npm install react-router-dom
+npm install react-scripts

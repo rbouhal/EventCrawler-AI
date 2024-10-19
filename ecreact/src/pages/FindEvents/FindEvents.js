@@ -39,7 +39,7 @@ function FindEvents() {
 
   const fetchEvents = async (query, filters, pageNumber) => {
     try {
-      const apiKey = 'x';
+      const apiKey = process.env.REACT_APP_TICKETM_KEY;
       let url = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${apiKey}&city=${query}&size=10&page=${pageNumber}`;
 
       if (filters.keyword) url += `&keyword=${filters.keyword}`;
@@ -64,21 +64,30 @@ function FindEvents() {
       const data = await response.json();
 
       if (data._embedded && data._embedded.events) {
-        const eventsData = data._embedded.events.map((event) => ({
-          name: event.name,
-          date: event.dates.start.localDate,
-          time: event.dates.start.localTime || 'TBD',
-          address: `${event._embedded.venues[0].address.line1}, ${event._embedded.venues[0].city.name}, ${event._embedded.venues[0].state.stateCode} ${event._embedded.venues[0].postalCode}`,
-          url: event.url,
-          image: event.images[0].url,
-        }));
-
+        const eventsData = data._embedded.events.map((event) => {
+          const venue = event._embedded.venues[0];
+          
+          // Fallbacks for missing data
+          const addressLine = venue.address ? venue.address.line1 : "Address not available";
+          const stateCode = venue.state ? venue.state.stateCode : ""; // Handle missing state
+          const postalCode = venue.postalCode || "Postal code not available";
+      
+          return {
+            name: event.name,
+            date: event.dates.start.localDate,
+            time: event.dates.start.localTime || 'TBD',
+            address: `${addressLine}, ${venue.city.name}, ${stateCode} ${postalCode}`,
+            url: event.url,
+            image: event.images[0].url,
+          };
+        });
+      
         setEvents((prevEvents) => (pageNumber === 0 ? eventsData : [...prevEvents, ...eventsData]));
         setNoMoreResults(false); // Reset the no results message
       } else {
         setNoMoreResults(true);
         setTimeout(() => setNoMoreResults(false), 3000); // Message disappears after 3 seconds
-      }
+      }      
     } catch (error) {
       console.error('Error fetching events:', error);
     }
