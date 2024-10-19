@@ -14,7 +14,7 @@ function Header() {
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname !== '/find-events') {
+    if (location.pathname !== '/find-events' && location.pathname !== '/mark-insights') {
       setSearchTerm('');
     }
   }, [location.pathname]);
@@ -35,7 +35,14 @@ function Header() {
   const handleSearchSubmit = (event) => {
     event.preventDefault();
     if (searchTerm.trim()) {
-      navigate(`/find-events?location=${searchTerm}`);
+      if (location.pathname === '/') {
+        navigate(`/find-events?location=${searchTerm}`);
+      } else if (location.pathname === '/mark-insights') {
+        navigate(`/mark-insights?location=${searchTerm}`);
+      }
+      else if (location.pathname === '/find-events') {
+        navigate(`/find-events?location=${searchTerm}`);
+      }
       setIsNavOpen(false);
     }
   };
