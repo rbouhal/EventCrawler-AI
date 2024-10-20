@@ -20,16 +20,15 @@ ul {
 }
 
 .event-item {
+  position: relative;
   background-color: white;
   color: #DB6948;
-
   padding: 55px;
   border-radius: 10px;
- 
   align-items: center;
   transition: transform 0.4s ease; 
   width: 700px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.589);
   border: #DB6948 1px solid;
   display: flex; 
   flex-direction: row;
@@ -98,9 +97,7 @@ input, button {
   border-radius: 0 20px 20px 0; 
   border: 1px solid #ccc; 
   padding: 4.2px 0; 
-
   border-left: none;
-
 }
 
 .radius input {
@@ -121,6 +118,24 @@ button{
   align-items: center;
   gap: 10px;
 }
+.add-event-button {
+  background-color: #DB6948;
+  border: 2px solid #DB6948;
+  color: white;
+  border-radius: 50%;
+  padding: 10px;
+  position: absolute;
+  bottom: 20px; /* Adjust distance from the bottom */
+  right: 20px;  /* Adjust distance from the right */
+  cursor: pointer;
+  transition: all 0.3s ease;  /* Smooth transition */
+}
+
+.add-event-button.selected {
+  background-color: white;
+  color: #DB6948;
+}
+
 .title{
   display: flex;
   flex-direction: column;
@@ -128,4 +143,42 @@ button{
 .clear{
   align-self:flex-end;
   margin: 20px;
+}
+
+.tooltip-text {
+  font-family: 'Swiss-721';
+  visibility: hidden;
+  width: 160px;
+  background-color: #DB6948;
+  color: #fff;
+  border-radius: 6px;
+  padding: 5px 0px;
+  position: absolute;
+  z-index: 1;
+  bottom: 40%; /* Position the tooltip above the button */
+  left: 105%;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip-wrapper:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.more-results-button {
+  border: 2px solid #DB6948; /* Add border to make it more visible */
+  font-family: 'Swiss-721';
+  margin:  30px auto; /* centers the button horizontally */
+  padding: 10px 20px;
+  background-color: #DB6948;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition effect */
+}
+
+.more-results-button:hover {
+  background-color: white; /* Inverted color on hover */
+  color: #DB6948; /* Text color changes to orange */
 }

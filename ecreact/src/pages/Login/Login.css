@@ -1,0 +1,42 @@
+.google-signin-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4285F4;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  
+  .google-signin-button:hover {
+    background-color: #357ae8;
+  }
+  
+  .divider {
+    margin: 20px 0;
+    text-align: center;
+    position: relative;
+    font-size: 14px;
+    color: #999;
+  }
+  
+  .divider:before,
+  .divider:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: #ccc;
+  }
+  
+  .divider:before {
+    left: 0;
+  }
+  
+  .divider:after {
+    right: 0;
+  }
+  

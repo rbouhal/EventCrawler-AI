@@ -51,6 +51,7 @@
     padding-bottom: clamp(10px, 3vw, 40px);
     font-weight: 900;
     color: #999898;
+    font-family: 'Swiss-721-Bold';
 }
 
 .overlay-content strong {
