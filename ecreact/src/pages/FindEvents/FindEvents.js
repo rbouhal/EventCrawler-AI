@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext, useCallback } from 'react'; // Added useCallback here
 import { useLocation, useNavigate } from 'react-router-dom';
 import './FindEvents.css';
-import { AiOutlineSearch, AiOutlineClose, AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
+import { AiOutlineSearch, AiOutlineClose, AiOutlinePlus, AiOutlineMinus, AiOutlineDelete } from "react-icons/ai";
 import { AuthContext } from '../../AuthContext';
 import { SearchContext } from '../../SearchContext'; // Import SearchContext
 import { db } from '../../firebaseConfig';
@@ -88,6 +88,27 @@ function FindEvents() {
     }
   };
 
+  const handleClearSelectedEvents = async () => {
+    // Iterate over selected events and remove them from Firestore
+    for (const event of selectedEvents) {
+      await removeEventFromStorage(event);
+    }
+
+    // Clear selected events in the SearchContext
+    setSelectedEvents([]);
+
+    // Update the event buttons in the current search results
+    const updatedEvents = events.map(event => {
+      if (selectedEvents.find(e => e.id === event.id && e.date === event.date)) {
+        return { ...event, isSelected: false }; // Update state to unselected
+      }
+      return event;
+    });
+
+    setEvents(updatedEvents); // Update the UI
+  };
+
+
   const addEventToStorage = async (event) => {
     try {
       const userEventsRef = collection(db, 'users', currentUser.uid, 'events');
@@ -117,15 +138,25 @@ function FindEvents() {
   };
 
   const handleClearSearch = () => {
+    // Reset the filters to empty values
     setFilters({
+      location: '',  // Assuming you want to clear the location as well
       keyword: '',
       startDateTime: '',
       radius: '',
       unit: 'miles',
     });
+
+    // Clear the search results by resetting the events state
     setEvents([]);
+
+    // Reset the search bar input value (URL params) if necessary
+    navigate('/find-events');  // This clears the search query from the URL
+
+    // Reset pagination
     setPage(0);
   };
+
 
   const loadMoreResults = () => {
     const nextPage = page + 1;
@@ -192,10 +223,18 @@ function FindEvents() {
 
           {events.length > 0 ? (
             <div className='col'>
-              <button onClick={handleClearSearch} className="clear">
-                <AiOutlineClose /> Clear Search
-              </button>
-
+              <div className="button-row">
+                <button onClick={handleClearSearch} className="clear">
+                  <AiOutlineClose /> Clear Search
+                </button>
+                {selectedEvents.length > 0 && (
+                  <>
+                    <button onClick={handleClearSelectedEvents} className="clear">
+                      <AiOutlineDelete  /> Clear Selected Events
+                    </button>
+                  </>
+                )}
+              </div>
               <ul className="events-list">
                 {events.map((event, index) => (
                   <li key={index} className="event-item">
@@ -233,12 +272,14 @@ function FindEvents() {
 
           {/* Button to go to AI recommendations page */}
           {selectedEvents.length > 0 && (
-            <button onClick={goToAIRecc} className="fab-button">
-              <div className="fab-content">
-                <RiRobot3Fill className="robot-icon" size={24} />
-                <span>Get AI Insights</span>
-              </div>
-            </button>
+            <>
+              <button onClick={goToAIRecc} className="fab-button">
+                <div className="fab-content">
+                  <RiRobot3Fill className="robot-icon" size={24} />
+                  <span>Get AI Insights</span>
+                </div>
+              </button>
+            </>
           )}
 
         </>

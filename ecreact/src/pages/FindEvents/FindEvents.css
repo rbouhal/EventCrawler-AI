@@ -2,6 +2,10 @@
   padding: 20px;
 }
 
+.find-events-page h1 {
+  font-family: 'Swiss-721';
+}
+
 h1, h2, h3, a {
   color: #DB6948;
 }
@@ -141,14 +145,24 @@ button{
   display: flex;
   flex-direction: column;
 }
-.clear{
-  align-self:flex-end;
-  margin: 20px;
+.button-row {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  gap: 20px; /* Space between the buttons */
+  margin-bottom: 20px;
+}
+
+.clear {
+  margin-top: 5px;;
   background-color: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   border: #DB6948 1px solid;
-  padding: 12px 24px
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 .clear svg, .search-button svg{
   width: 20px;
   height: 20px;

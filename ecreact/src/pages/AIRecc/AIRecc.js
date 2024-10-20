@@ -3,10 +3,12 @@ import { AuthContext } from '../../AuthContext';
 import { db } from '../../firebaseConfig';  // Firestore database
 import { collection, getDocs } from 'firebase/firestore';  // Firebase Firestore functions
 import { jsPDF } from "jspdf";  // PDF generation library
+import { Oval } from 'react-loader-spinner';  // Import the spinner
 import './AIRecc.css';  // Import the external CSS file
 
 function AIRecc() {
   const [ads, setAds] = useState([]);  // To store generated ads
+  const [loading, setLoading] = useState(true);  // Loading state
   const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
@@ -36,6 +38,8 @@ function AIRecc() {
           }
         } catch (error) {
           console.error("Error fetching events:", error);
+        } finally {
+          setLoading(false);  // Set loading to false after ads are fetched
         }
       };
 
@@ -63,7 +67,18 @@ function AIRecc() {
   return (
     <div className='ai-rec-page'>
       <h1>AI Recommendations</h1>
-      {ads.length > 0 ? (
+      {loading ? (
+        <div className="loading-container">
+          <Oval 
+            height={100} 
+            width={100} 
+            color="#ffffff"
+            secondaryColor="#DB6948"
+            ariaLabel="loading"
+          />
+          <p>Loading</p>
+        </div>
+      ) : ads.length > 0 ? (
         <div className="ad-cards-container">
           {ads.map((ad, index) => (
             <div
@@ -75,6 +90,7 @@ function AIRecc() {
               <img src={ad.image} alt={ad.name} /> {/* Event image */}
               <h2>{ad.name}</h2>
               <p>{ad.ad_text}</p> {/* Display the generated ad text */}
+              <div className="hover-message">Click to download as PDF</div>
             </div>
           ))}
         </div>
