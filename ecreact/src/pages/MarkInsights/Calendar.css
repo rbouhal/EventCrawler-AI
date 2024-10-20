@@ -80,11 +80,10 @@
   font: inherit;
   font-size: 0.75em;
   font-weight: bold;
+  padding: 30px;
 }
 
-/* .react-calendar__month-view__days__day--weekend {
-  color: #d10000;
-} */
+
 
 .react-calendar__month-view__days__day--neighboringMonth,
 .react-calendar__decade-view__years__year--neighboringDecade,
