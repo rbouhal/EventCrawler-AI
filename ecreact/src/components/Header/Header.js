@@ -9,6 +9,7 @@ import { AuthContext } from '../../AuthContext';  // Import your AuthContext
 import { signOut } from 'firebase/auth';  // Import Firebase signOut
 import { auth } from '../../firebaseConfig';  // Import Firebase auth
 import { AiOutlineUser } from 'react-icons/ai';  // Import a user icon
+import { SearchContext } from '../../SearchContext';
 
 function Header() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,8 +17,8 @@ function Header() {
   const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 500);
   const navigate = useNavigate();
   const location = useLocation();
-
   const { currentUser } = useContext(AuthContext);  // Use AuthContext to get the current user
+  const { setFilters, setEvents, setSelectedEvents } = useContext(SearchContext);
 
   useEffect(() => {
     if (location.pathname !== '/find-events' && location.pathname !== '/mark-insights') {
@@ -49,6 +50,9 @@ function Header() {
       else if (location.pathname === '/find-events') {
         navigate(`/find-events?location=${searchTerm}`);
       }
+      else if (location.pathname === '/ai-recc') {
+        navigate(`/find-events?location=${searchTerm}`);
+      }
       setIsNavOpen(false);
     }
   };
@@ -58,8 +62,21 @@ function Header() {
     
     if (confirmLogout) {
       try {
+        // Clear search-related state and localStorage
+        setFilters({
+          keyword: '',
+          startDateTime: '',
+          radius: '',
+          unit: 'miles',
+        });
+        setEvents([]); // Clear search results
+        setSelectedEvents([]); // Clear selected events
+        localStorage.removeItem('location');   // Clear search-related data from localStorage
+        localStorage.removeItem('events');
+        localStorage.removeItem('selectedEvents');
+
         await signOut(auth);
-        navigate('/login');  // Redirect to login page after logout
+        navigate('/login');  // Redirect to login page
       } catch (error) {
         console.error("Error logging out: ", error);
       }

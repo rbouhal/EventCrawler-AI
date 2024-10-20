@@ -75,7 +75,7 @@ function Login() {
           </button>
           </div>
           <div className="login-image">
-            <img src="/images/login-hotel.jpg" />
+            <img src="/images/login-hotel.jpg" alt="Hotel imagery for login"/>
           </div>
    
       </div>

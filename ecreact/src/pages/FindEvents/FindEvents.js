@@ -1,51 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react'; // Added useCallback here
 import { useLocation, useNavigate } from 'react-router-dom';
 import './FindEvents.css';
 import { AiOutlineSearch, AiOutlineClose, AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
-import { useContext } from 'react';
 import { AuthContext } from '../../AuthContext';
+import { SearchContext } from '../../SearchContext'; // Import SearchContext
 import { db } from '../../firebaseConfig';
-import { collection, addDoc, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, getDocs, query, where } from 'firebase/firestore';
 import { RiRobot3Fill } from "react-icons/ri";
 
 function FindEvents() {
-  // Use localStorage to retrieve persisted state
-  const [events, setEvents] = useState(JSON.parse(localStorage.getItem('events')) || []);
-  const [location, setLocation] = useState(localStorage.getItem('location') || '');
-  const [page, setPage] = useState(0);
-  const [noMoreResults, setNoMoreResults] = useState(false);
-  const [filters, setFilters] = useState({
-    keyword: localStorage.getItem('keyword') || '',
-    startDateTime: localStorage.getItem('startDateTime') || '',
-    radius: localStorage.getItem('radius') || '',
-    unit: 'miles',
-  });
-  const [selectedEvents, setSelectedEvents] = useState(JSON.parse(localStorage.getItem('selectedEvents')) || []);
+  const { events, setEvents, selectedEvents, setSelectedEvents, filters, setFilters } = useContext(SearchContext); // Use SearchContext for state
+  const { currentUser } = useContext(AuthContext);  // Use AuthContext for user
   const navigate = useNavigate();
   const searchLocation = useLocation();
+  const [page, setPage] = useState(0);
+  const [noMoreResults, setNoMoreResults] = useState(false);
 
-  useEffect(() => {
-    const params = new URLSearchParams(searchLocation.search);
-    const query = params.get('location');
-    if (query && query !== location) {
-      setLocation(query);
-      localStorage.setItem('location', query); // Persist location
-      fetchEvents(query, filters, 0);
-    }
-  }, [searchLocation, location, filters]);
-
-  useEffect(() => {
-    localStorage.setItem('events', JSON.stringify(events)); // Persist events
-    localStorage.setItem('selectedEvents', JSON.stringify(selectedEvents)); // Persist selected events
-  }, [events, selectedEvents]);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prevFilters => ({ ...prevFilters, [name]: value }));
-    localStorage.setItem(name, value); // Persist filters
-  };
-
-  const fetchEvents = async (query, filters, pageNumber) => {
+  // Move fetchEvents before useEffect and wrap it in useCallback
+  const fetchEvents = useCallback(async (query, filters, pageNumber) => {
     try {
       const apiKey = process.env.REACT_APP_TICKETM_KEY;
       let url = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${apiKey}&city=${query}&size=10&page=${pageNumber}`;
@@ -65,6 +37,7 @@ function FindEvents() {
           const postalCode = venue.postalCode || "Postal code not available";
 
           return {
+            id: event.id,
             name: event.name,
             date: event.dates.start.localDate,
             time: event.dates.start.localTime || 'TBD',
@@ -83,18 +56,32 @@ function FindEvents() {
     } catch (error) {
       console.error('Error fetching events:', error);
     }
-  };
+  }, [setEvents, setNoMoreResults]);
 
-  const { currentUser } = useContext(AuthContext);
+  // useEffect now has fetchEvents wrapped in useCallback, ensuring it's stable across renders
+  useEffect(() => {
+    const params = new URLSearchParams(searchLocation.search);
+    const query = params.get('location');
+    if (query && query !== filters.location) {
+      setFilters(prevFilters => ({ ...prevFilters, location: query }));
+      fetchEvents(query, filters, 0);
+    }
+  }, [searchLocation, filters, setFilters, fetchEvents]);
+
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prevFilters => ({ ...prevFilters, [name]: value }));
+  };
 
   const handleAddEvent = async (event) => {
     if (!currentUser) return;
 
-    const eventExists = selectedEvents.find((e) => e.name === event.name);
+    const eventExists = selectedEvents.find((e) => e.id === event.id && e.date === event.date);
 
     if (eventExists) {
       await removeEventFromStorage(event);
-      setSelectedEvents(selectedEvents.filter((e) => e.name !== event.name));
+      setSelectedEvents(selectedEvents.filter((e) => e.id !== event.id || e.date !== event.date));
     } else {
       await addEventToStorage(event);
       setSelectedEvents([...selectedEvents, event]);
@@ -113,7 +100,7 @@ function FindEvents() {
   const removeEventFromStorage = async (event) => {
     try {
       const userEventsRef = collection(db, 'users', currentUser.uid, 'events');
-      const q = query(userEventsRef, where('name', '==', event.name));
+      const q = query(userEventsRef, where('id', '==', event.id), where('date', '==', event.date));
       const snapshot = await getDocs(q);
       snapshot.forEach(async (docSnapshot) => {
         await deleteDoc(docSnapshot.ref);
@@ -125,29 +112,25 @@ function FindEvents() {
 
   const handleSearch = () => {
     setPage(0);
-    setEvents([]);
-    fetchEvents(location, filters, 0);
+    setEvents([]); // Clear current events
+    fetchEvents(filters.location, filters, 0);
   };
 
   const handleClearSearch = () => {
     setFilters({
       keyword: '',
       startDateTime: '',
-      endDateTime: '',
       radius: '',
       unit: 'miles',
     });
     setEvents([]);
     setPage(0);
-    localStorage.removeItem('location');
-    localStorage.removeItem('events');
-    localStorage.removeItem('selectedEvents');
   };
 
   const loadMoreResults = () => {
     const nextPage = page + 1;
     setPage(nextPage);
-    fetchEvents(location, filters, nextPage);
+    fetchEvents(filters.location, filters, nextPage);
   };
 
   const goToAIRecc = () => {
@@ -156,12 +139,9 @@ function FindEvents() {
 
   return (
     <div className="find-events-page">
-      {location ? (
+      {filters.location ? (
         <>
-     
-            <h1 className="location">Events in {location}</h1>
-    
- 
+          <h1 className="location">Events in {filters.location}</h1>
 
           {/* Search Filters */}
           <div className="search-filters">
@@ -205,12 +185,17 @@ function FindEvents() {
               </select>
             </label>
 
-            <button onClick={handleSearch} className='search-button'><AiOutlineSearch /> Search</button>
+            <button onClick={handleSearch} className='search-button'>
+              <AiOutlineSearch /> Search
+            </button>
           </div>
 
           {events.length > 0 ? (
             <div className='col'>
-                    <button onClick={handleClearSearch} className="clear"><AiOutlineClose /> Clear Search</button>
+              <button onClick={handleClearSearch} className="clear">
+                <AiOutlineClose /> Clear Search
+              </button>
+
               <ul className="events-list">
                 {events.map((event, index) => (
                   <li key={index} className="event-item">
@@ -226,13 +211,13 @@ function FindEvents() {
                     </div>
                     <div className="tooltip-wrapper">
                       <button
-                        className={`add-event-button ${selectedEvents.find(e => e.name === event.name) ? 'selected' : ''}`}
+                        className={`add-event-button ${selectedEvents.find(e => e.id === event.id && e.date === event.date) ? 'selected' : ''}`}
                         onClick={() => handleAddEvent(event)}
                       >
-                        {selectedEvents.find(e => e.name === event.name) ? <AiOutlineMinus /> : <AiOutlinePlus />}
+                        {selectedEvents.find(e => e.id === event.id && e.date === event.date) ? <AiOutlineMinus /> : <AiOutlinePlus />}
                       </button>
                       <span className="tooltip-text">
-                        {selectedEvents.find(e => e.name === event.name) ? 'Remove event from AI Recommender' : 'Add event to AI Recommender'}
+                        {selectedEvents.find(e => e.id === event.id && e.date === event.date) ? 'Remove event from AI Recommender' : 'Add event to AI Recommender'}
                       </span>
                     </div>
                   </li>
@@ -241,20 +226,20 @@ function FindEvents() {
               {!noMoreResults && <button className="more-results-button" onClick={loadMoreResults}>Load More Results</button>}
             </div>
           ) : (
-            <p>No events found in {location}.</p>
+            <p>No events found in {filters.location}.</p>
           )}
 
           {noMoreResults && <p>No more results available.</p>}
 
           {/* Button to go to AI recommendations page */}
           {selectedEvents.length > 0 && (
-  <button onClick={goToAIRecc} className="fab-button">
-    <div className="fab-content">
-      <RiRobot3Fill className="robot-icon" size={24} />
-      <span>Get AI Insights</span> 
-    </div>
-  </button>
-)}
+            <button onClick={goToAIRecc} className="fab-button">
+              <div className="fab-content">
+                <RiRobot3Fill className="robot-icon" size={24} />
+                <span>Get AI Insights</span>
+              </div>
+            </button>
+          )}
 
         </>
       ) : (

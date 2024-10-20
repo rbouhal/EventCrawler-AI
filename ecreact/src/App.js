@@ -8,21 +8,24 @@ import Login from './pages/Login/Login';
 import AIRecc from './pages/AIRecc/AIRecc';
 import { AuthProvider } from './AuthContext';
 import ProtectedRoute from './ProtectedRoute';
+import { SearchProvider } from './SearchContext';
 
 function App() {
   return (
     <AuthProvider>
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/find-events" element={<ProtectedRoute><FindEvents /></ProtectedRoute>} />
-          <Route path="/mark-insights" element={<ProtectedRoute><MarkInsights /></ProtectedRoute>} />
-          <Route path="/ai-recc" element={<ProtectedRoute><AIRecc /></ProtectedRoute>} />
-        </Routes>
-      </Layout>
-    </Router>
+      <SearchProvider>
+        <Router>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/find-events" element={<ProtectedRoute><FindEvents /></ProtectedRoute>} />
+              <Route path="/mark-insights" element={<ProtectedRoute><MarkInsights /></ProtectedRoute>} />
+              <Route path="/ai-recc" element={<ProtectedRoute><AIRecc /></ProtectedRoute>} />
+            </Routes>
+          </Layout>
+        </Router>
+      </SearchProvider>
     </AuthProvider>
   );
 }

@@ -1,6 +1,6 @@
-flask-cors
-
+pip install Flask openai flask-cors python-dotenv
 npm install dotenv
 npm install react-router-dom
 npm install react-scripts
 npm install firebase
+npm install jspdf

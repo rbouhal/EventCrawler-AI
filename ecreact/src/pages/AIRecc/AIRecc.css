@@ -1,0 +1,44 @@
+.ai-rec-page {
+    padding: 20px;
+  }
+  
+.ad-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 0 auto;
+    max-width: 1200px;
+  }
+  
+  .ad-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px;
+    cursor: pointer;
+    width: calc(33.333% - 32px);  /* Ensures three cards per row with spacing */
+    box-sizing: border-box;
+    transition: transform 0.2s;
+  }
+  
+  .ad-card img {
+    width: 100%;
+    border-radius: 8px;
+  }
+  
+  .ad-card h2 {
+    font-size: 20px;
+    margin-top: 12px;
+    text-align: center;
+  }
+  
+  .ad-card p {
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+  }
+  
+  .ad-card:hover {
+    transform: scale(1.05);  /* Slight zoom on hover */
+  }
+  
