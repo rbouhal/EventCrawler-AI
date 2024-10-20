@@ -20,10 +20,21 @@ function FindEvents() {
   const fetchEvents = useCallback(async (query, filters, pageNumber) => {
     try {
       const apiKey = process.env.REACT_APP_TICKETM_KEY;
+
+      // Format the date to the correct format "YYYY-MM-DDTHH:mm:ssZ"
+      let startDateTime = filters.startDateTime
+        ? new Date(filters.startDateTime).toISOString().split('.')[0] + "Z"
+        : null;
+      let endDateTime = filters.endDateTime
+        ? new Date(filters.endDateTime).toISOString().split('.')[0] + "Z"
+        : null;
+
       let url = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${apiKey}&city=${query}&size=10&page=${pageNumber}`;
 
+      // Add formatted date if available
+      if (startDateTime) url += `&startDateTime=${startDateTime}`;
+      if (endDateTime) url += `&endDateTime=${endDateTime}`;
       if (filters.keyword) url += `&keyword=${filters.keyword}`;
-      if (filters.startDateTime) url += `&startDateTime=${new Date(filters.startDateTime).toISOString()}`;
       if (filters.radius) url += `&radius=${filters.radius}&unit=${filters.unit}`;
 
       const response = await fetch(url);
@@ -230,7 +241,7 @@ function FindEvents() {
                 {selectedEvents.length > 0 && (
                   <>
                     <button onClick={handleClearSelectedEvents} className="clear">
-                      <AiOutlineDelete  /> Clear Selected Events
+                      <AiOutlineDelete /> Clear Selected Events
                     </button>
                   </>
                 )}
