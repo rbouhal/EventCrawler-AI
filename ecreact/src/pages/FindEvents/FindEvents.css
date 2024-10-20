@@ -71,6 +71,7 @@ ul {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  align-items: center;
   gap: 20px;
   background-color: #DB6948;
   padding: 12px 24px;
@@ -136,13 +137,21 @@ button{
   color: #DB6948;
 }
 
-.title{
+.col{
   display: flex;
   flex-direction: column;
 }
 .clear{
   align-self:flex-end;
   margin: 20px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border: #DB6948 1px solid;
+  padding: 12px 24px
+}
+.clear svg, .search-button svg{
+  width: 20px;
+  height: 20px;
 }
 
 .tooltip-text {
@@ -181,4 +190,49 @@ button{
 .more-results-button:hover {
   background-color: white; /* Inverted color on hover */
   color: #DB6948; /* Text color changes to orange */
+}
+
+.fab-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 120px; 
+  height: 120px; 
+  border-radius: 50%;
+  background-color: #333;
+  color: white;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  text-align: center;
+  font-size: 22px;  
+  font-family: 'Swiss-721';
+}
+
+.fab-button:hover {
+ color: #DB6948;
+}
+
+.fab-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.robot-icon {
+  margin-bottom: 5px; /* Adds spacing between icon and text */
+}
+
+.fab-button span {
+  font-size: 12px;  /* Adjusted font size */
+}
+
+.search-button{
+  padding: 8px 24px;
+  border: none;
+  background-color: #333;
+  color: white;
 }

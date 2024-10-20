@@ -6,6 +6,7 @@ import { useContext } from 'react';
 import { AuthContext } from '../../AuthContext';
 import { db } from '../../firebaseConfig';
 import { collection, addDoc, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
+import { RiRobot3Fill } from "react-icons/ri";
 
 function FindEvents() {
   // Use localStorage to retrieve persisted state
@@ -157,10 +158,10 @@ function FindEvents() {
     <div className="find-events-page">
       {location ? (
         <>
-          <div className="title">
+     
             <h1 className="location">Events in {location}</h1>
-            <button onClick={handleClearSearch} className="clear"><AiOutlineClose /> Clear Search</button>
-          </div>
+    
+ 
 
           {/* Search Filters */}
           <div className="search-filters">
@@ -176,8 +177,16 @@ function FindEvents() {
               <input
                 type="date"
                 name="startDateTime"
-                placeholder="Start Date"
                 value={filters.startDateTime}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              End
+              <input
+                type="date"
+                name="endDateTime"
+                value={filters.endDateTime}
                 onChange={handleInputChange}
               />
             </label>
@@ -196,11 +205,12 @@ function FindEvents() {
               </select>
             </label>
 
-            <button onClick={handleSearch}><AiOutlineSearch /> Search</button>
+            <button onClick={handleSearch} className='search-button'><AiOutlineSearch /> Search</button>
           </div>
 
           {events.length > 0 ? (
-            <>
+            <div className='col'>
+                    <button onClick={handleClearSearch} className="clear"><AiOutlineClose /> Clear Search</button>
               <ul className="events-list">
                 {events.map((event, index) => (
                   <li key={index} className="event-item">
@@ -229,7 +239,7 @@ function FindEvents() {
                 ))}
               </ul>
               {!noMoreResults && <button className="more-results-button" onClick={loadMoreResults}>Load More Results</button>}
-            </>
+            </div>
           ) : (
             <p>No events found in {location}.</p>
           )}
@@ -238,10 +248,14 @@ function FindEvents() {
 
           {/* Button to go to AI recommendations page */}
           {selectedEvents.length > 0 && (
-            <button onClick={goToAIRecc} className="go-to-ai-recc-button">
-              Go to AI Recommendations
-            </button>
-          )}
+  <button onClick={goToAIRecc} className="fab-button">
+    <div className="fab-content">
+      <RiRobot3Fill className="robot-icon" size={24} />
+      <span>Get AI Insights</span> 
+    </div>
+  </button>
+)}
+
         </>
       ) : (
         <>
