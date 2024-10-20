@@ -1,0 +1,68 @@
+name: Azure CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-deploy-react:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.12.1'  # Make sure this matches your node version
+
+      # Install dependencies and build the React app
+      - name: Install dependencies and build React app
+        run: |
+          cd ecreact
+          npm install
+          npm run build
+
+      # Deploy React app to Azure Web App
+      - name: Deploy React app to Azure
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ecaireact  # Name of your React Azure Web App
+          slot-name: production
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+
+  deploy-flask-api:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'  # Python version for your Flask app
+
+      # Install dependencies for Flask
+      - name: Install dependencies
+        run: |
+          cd server
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+
+      # Deploy Flask API to Azure Web App
+      - name: Deploy Flask API to Azure
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ecaiflask  # Name of your Flask Azure Web App
+          slot-name: production
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+
