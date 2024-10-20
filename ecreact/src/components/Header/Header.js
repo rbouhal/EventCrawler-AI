@@ -54,14 +54,18 @@ function Header() {
   };
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigate('/login');  // Redirect to login page after logout
-    } catch (error) {
-      console.error("Error logging out: ", error);
+    const confirmLogout = window.confirm("Are you sure you want to log out?");
+    
+    if (confirmLogout) {
+      try {
+        await signOut(auth);
+        navigate('/login');  // Redirect to login page after logout
+      } catch (error) {
+        console.error("Error logging out: ", error);
+      }
     }
   };
-
+  
   const handleLoginOrLogout = () => {
     if (currentUser) {
       handleLogout();  // Log out if a user is logged in
